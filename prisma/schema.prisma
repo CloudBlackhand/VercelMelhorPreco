@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Operadora {
+  id                String   @id @default(cuid())
+  nome              String
+  slug              String   @unique
+  logoUrl           String?  @map("logo_url")
+  siteUrl           String?  @map("site_url")
+  telefone          String?
+  email             String?
+  ativo             Boolean  @default(true)
+  ordemRecomendacao Int?     @map("ordem_recomendacao")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  planos              Plano[]
+  coberturaAreas      CoberturaArea[]
+  recomendacoes       Recomendacao[]
+
+  @@index([ativo])
+  @@index([ordemRecomendacao])
+  @@map("operadoras")
+}
+
+model Plano {
+  id                String    @id @default(cuid())
+  operadoraId       String    @map("operadora_id")
+  nome              String
+  velocidadeDownload Int      @map("velocidade_download") // Mbps
+  velocidadeUpload  Int       @map("velocidade_upload") // Mbps
+  preco             Decimal   @db.Decimal(10, 2)
+  descricao         String?
+  beneficios        Json?     // Array de strings
+  ativo             Boolean   @default(true)
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  operadora         Operadora @relation(fields: [operadoraId], references: [id], onDelete: Cascade)
+  tagsPorCidade     PlanoTagCidade[]
+
+  @@index([operadoraId, ativo])
+  @@index([ativo])
+  @@map("planos")
+}
+
+/// Operadoras a exibir por cidade (slug do config: desktop, vero, etc.). Admin define; salvo no banco.
+model OperadoraCidade {
+  id            String   @id @default(cuid())
+  operadoraSlug String   @map("operadora_slug") // slug do config (OPERADORAS_PLANOS)
+  cidade        String
+  estado        String?
+  ordem         Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@unique([operadoraSlug, cidade, estado])
+  @@index([cidade, estado])
+  @@map("operadora_cidades")
+}
+
+/// Tag por plano e cidade (ex.: "Mais Popular" no plano X em Campinas). Para planos do banco ou config (slug+índice).
+model PlanoTagCidade {
+  id             String   @id @default(cuid())
+  planoId        String?  @map("plano_id") // Se preenchido = plano do banco
+  operadoraSlug  String?  @map("operadora_slug") // Se preenchido = plano do config (ex.: "desktop")
+  planoIndex     Int?     @map("plano_index") // Índice do plano no config (0, 1, 2...)
+  cidade         String
+  estado         String?
+  tag            String   // Ex.: "Mais Popular", "Melhor Custo-Benefício", "Recomendado"
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  plano          Plano?   @relation(fields: [planoId], references: [id], onDelete: Cascade)
+
+  @@index([cidade, estado])
+  @@index([planoId])
+  @@index([operadoraSlug, planoIndex])
+  @@map("plano_tag_cidades")
+}
+
+model CoberturaArea {
+  id          String    @id @default(cuid())
+  operadoraId String    @map("operadora_id")
+  nomeArea    String    @map("nome_area")
+  geometria   Json      // GeoJSON FeatureCollection
+  kmlOriginal String?   @db.Text @map("kml_original")
+  rank        Int?      @default(999)
+  score       Float?
+  bboxMinLat  Float?    @map("bbox_min_lat")
+  bboxMaxLat  Float?    @map("bbox_max_lat")
+  bboxMinLng  Float?    @map("bbox_min_lng")
+  bboxMaxLng  Float?    @map("bbox_max_lng")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  operadora   Operadora @relation(fields: [operadoraId], references: [id], onDelete: Cascade)
+
+  @@index([operadoraId])
+  @@index([rank])
+  @@index([score])
+  @@index([bboxMinLat, bboxMaxLat, bboxMinLng, bboxMaxLng])
+  @@map("cobertura_areas")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  senhaHash String   @map("senha_hash")
+  role      String   @default("admin") // admin | super_admin
+  createdAt DateTime @default(now()) @map("created_at")
+  lastLogin DateTime? @map("last_login")
+
+  @@map("admin_users")
+}
+
+model Recomendacao {
+  id          String    @id @default(cuid())
+  operadoraId String    @map("operadora_id")
+  prioridade  Int
+  motivo      String?
+  badgeText   String?   @map("badge_text")
+  ativo       Boolean   @default(true)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  operadora   Operadora @relation(fields: [operadoraId], references: [id], onDelete: Cascade)
+
+  @@index([operadoraId])
+  @@index([ativo, prioridade])
+  @@map("recomendacoes")
+}
+
+model Config {
+  id        String   @id @default(cuid())
+  chave     String   @unique
+  valor     String
+  descricao String?
+  updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("configs")
+}
+
+// Sistema de Tracking e Analytics
+model Visitante {
+  id            String   @id @default(cuid())
+  sessionId     String   @unique @map("session_id")
+  ipAddress     String?  @map("ip_address")
+  userAgent     String?  @map("user_agent")
+  referer       String?  // URL de origem
+  utmSource     String?  @map("utm_source") // google, facebook, etc
+  utmMedium     String?  @map("utm_medium") // cpc, email, etc
+  utmCampaign   String?  @map("utm_campaign")
+  cidade        String?  // Detectada por IP ou CEP
+  estado        String?  // Detectado por IP ou CEP
+  firstVisit    DateTime @default(now()) @map("first_visit")
+  lastVisit     DateTime @updatedAt @map("last_visit")
+  visitCount    Int      @default(1) @map("visit_count")
+
+  eventos       Evento[]
+  buscas        BuscaCobertura[]
+
+  @@index([firstVisit])
+  @@index([utmSource])
+  @@index([cidade])
+  @@map("visitantes")
+}
+
+model Evento {
+  id            String   @id @default(cuid())
+  visitanteId   String   @map("visitante_id")
+  tipo          String   // click, view, search, download, etc
+  acao          String?  // descrição da ação (ex: "click_plano_123")
+  url           String?  // URL onde ocorreu
+  elemento      String?  // elemento clicado (ex: "botao_contratar")
+  valor         String?  // valor adicional (ex: ID do plano clicado)
+  metadata      Json?    // dados extras
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  visitante     Visitante @relation(fields: [visitanteId], references: [id], onDelete: Cascade)
+
+  @@index([visitanteId])
+  @@index([tipo])
+  @@index([createdAt])
+  @@index([acao])
+  @@map("eventos")
+}
+
+model BuscaCobertura {
+  id            String   @id @default(cuid())
+  visitanteId   String?  @map("visitante_id")
+  cep           String?  // CEP buscado
+  lat           Float?   // Latitude buscada
+  lng           Float?   // Longitude buscada
+  cidade        String?  // Cidade detectada
+  estado        String?  // Estado detectado
+  encontrouCobertura Boolean @default(false) @map("encontrou_cobertura")
+  operadorasEncontradas Json? @map("operadoras_encontradas") // IDs das operadoras
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  visitante     Visitante? @relation(fields: [visitanteId], references: [id], onDelete: SetNull)
+
+  @@index([visitanteId])
+  @@index([cep])
+  @@index([cidade])
+  @@index([estado])
+  @@index([createdAt])
+  @@index([encontrouCobertura])
+  @@map("busca_cobertura")
+}
+
+

@@ -1,0 +1,40 @@
+/** @type {import('next').NextConfig} */
+const path = require("path");
+
+const nextConfig = {
+  // Removido output standalone para deploy na Vercel.
+  // Para rodar em container/Docker, descomente a linha abaixo:
+  // output: "standalone",
+  webpack: (config) => {
+    config.resolve.alias["@"] = path.resolve(__dirname, "src");
+    return config;
+  },
+  images: {
+    domains: [
+      'localhost',
+      'verovideo.com.br',
+      'desktopfibra.com',
+      'desktopfibra.com.br',
+      'upload.wikimedia.org',
+      'assets.b9.com.br',
+      'alcans.com.br',
+    ],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'verovideo.com.br', pathname: '/**' },
+      { protocol: 'https', hostname: 'desktopfibra.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'desktopfibra.com.br', pathname: '/**' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org', pathname: '/**' },
+      { protocol: 'https', hostname: 'assets.b9.com.br', pathname: '/**' },
+      { protocol: 'https', hostname: 'alcans.com.br', pathname: '/**' },
+    ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+};
+
+module.exports = nextConfig;
+
+
