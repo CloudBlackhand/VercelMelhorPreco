@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TrackingService } from "@/modules/tracking/service";
 import { randomBytes } from "crypto";
 
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { TrackingService } from "@/modules/tracking/service";
 import { requireAdmin } from "@/lib/auth/middleware";
 
+export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {

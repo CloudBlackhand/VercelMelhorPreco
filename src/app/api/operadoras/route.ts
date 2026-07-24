@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOperadorasFromConfig } from "@/config/operadoras-planos";
 import { getOperadoraRankingOverrides, getOperadoraAtivoOverrides } from "@/lib/operadora-ranking";
 
+export const dynamic = "force-dynamic";
+
 // lista operadoras do config; ordem e ativo vêm do admin
 export async function GET(request: NextRequest) {
   try {

@@ -4,6 +4,8 @@ import { TrackingService } from "@/modules/tracking/service";
 import { CEPSchema, CoordinateSchema } from "@/modules/shared/validations";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const coberturaService = new CoberturaService();
 
 export async function GET(request: NextRequest) {

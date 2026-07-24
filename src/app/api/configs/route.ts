@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireAdmin } from "@/lib/auth/middleware";
 
+export const dynamic = "force-dynamic";
+
 // público quando busca por chave (o front precisa do whatsapp)
 export async function GET(request: NextRequest) {
   try {
