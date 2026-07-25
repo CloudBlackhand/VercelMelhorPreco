@@ -28,23 +28,25 @@ export function FallingStarField({ compact, progress }: FallingStarFieldProps) {
   const pointsRef = useRef<THREE.Points>(null);
   const { camera } = useThree();
 
-  const count = compact ? 220 : 520;
+  const count = compact ? 280 : 720;
   const cols = compact ? COLS_MOBILE : COLS_DESKTOP;
-  
-  const halfW = compact ? 7.2 : 10.5;
-  const spanY = compact ? 20 : 28;
 
-  const geometry = useMemo(() => {
+  const halfW = compact ? 7.8 : 12;
+  const spanY = compact ? 24 : 36;
+
+  const { geometry, speeds } = useMemo(() => {
     const positions = new Float32Array(count * 3);
+    const s = new Float32Array(count);
     for (let i = 0; i < count; i++) {
       const col = i % cols;
       positions[i * 3] = starX(halfW, cols, col);
       positions[i * 3 + 1] = Math.random() * spanY - spanY / 2;
       positions[i * 3 + 2] = -1.5 - Math.random() * 10;
+      s[i] = 0.55 + Math.random() * 1.25;
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    return geo;
+    return { geometry: geo, speeds: s };
   }, [count, cols, halfW, spanY]);
 
   useFrame((_, delta) => {
@@ -56,15 +58,16 @@ export function FallingStarField({ compact, progress }: FallingStarFieldProps) {
     const p = progress.current;
     const attr = pts.geometry.attributes.position;
     const arr = attr.array as Float32Array;
-    const fall = delta * (1.6 + p * 5.5);
-    const bottom = -spanY / 2 - 1;
+    const fallBase = delta * (1.6 + p * 5.5);
+    const bottom = -spanY / 2 - 2;
     const top = spanY / 2 + 1;
+    const respawnRange = spanY * 0.35;
 
     for (let i = 0; i < count; i++) {
       const base = i * 3;
-      arr[base + 1] -= fall;
+      arr[base + 1] -= fallBase * speeds[i];
       if (arr[base + 1] < bottom) {
-        arr[base + 1] = top + Math.random() * 3;
+        arr[base + 1] = top + Math.random() * respawnRange;
         arr[base] = starX(halfW, cols, pickCol(cols));
         arr[base + 2] = -1.5 - Math.random() * 10;
       }
