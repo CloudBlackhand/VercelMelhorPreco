@@ -3,6 +3,16 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import bcrypt from "bcryptjs";
+import { encode, decode } from "next-auth/jwt";
+
+function parseUrlSafe(url?: string) {
+  try {
+    const u = new URL(url || "http://localhost:3000/api/auth");
+    return { origin: u.origin, pathname: u.pathname, host: u.host };
+  } catch {
+    return { origin: null, pathname: null, host: null, error: "URL invalida" };
+  }
+}
 
 export async function GET() {
   const databaseUrlSet = Boolean(process.env.DATABASE_URL);
@@ -41,6 +51,27 @@ export async function GET() {
     }
   }
 
+  // Testa se NEXTAUTH_SECRET consegue assinar e verificar um JWT (igual o login faz).
+  let jwtTest: { ok: boolean; error?: string; secretLength?: number; secretHasQuotes?: boolean } = { ok: false };
+  if (process.env.NEXTAUTH_SECRET) {
+    try {
+      const secret = process.env.NEXTAUTH_SECRET;
+      const token = await encode({ token: { test: true } as any, secret, maxAge: 60 });
+      const decoded = await decode({ token, secret });
+      if (decoded && (decoded as any).test === true) {
+        jwtTest = {
+          ok: true,
+          secretLength: secret.length,
+          secretHasQuotes: secret.startsWith('"') || secret.endsWith('"'),
+        };
+      } else {
+        jwtTest = { ok: false, error: "decode nao retornou payload esperado" };
+      }
+    } catch (err: any) {
+      jwtTest = { ok: false, error: err?.message || String(err) };
+    }
+  }
+
   return NextResponse.json({
     env: {
       databaseUrlSet,
@@ -48,7 +79,10 @@ export async function GET() {
       adminEmailSet,
       adminPasswordSet,
       nextauthUrlSet,
+      vercel: Boolean(process.env.VERCEL),
+      nodeEnv: process.env.NODE_ENV,
     },
+    nextauthUrl: parseUrlSafe(process.env.NEXTAUTH_URL),
     db: {
       connected: dbConnected,
       error: dbError,
@@ -56,5 +90,6 @@ export async function GET() {
       adminExists,
       passwordMatches,
     },
+    jwt: jwtTest,
   });
 }
