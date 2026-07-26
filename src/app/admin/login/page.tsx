@@ -28,12 +28,18 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Email ou senha incorretos");
+        console.error("[login] signIn error:", result.error);
+        if (result.error === "CredentialsSignin") {
+          setError("Email ou senha incorretos");
+        } else {
+          setError(`Erro de autenticação: ${result.error}`);
+        }
       } else {
         router.push("/admin");
         router.refresh();
       }
     } catch (error) {
+      console.error("[login] exception:", error);
       setError("Erro ao fazer login");
     } finally {
       setLoading(false);
