@@ -14,7 +14,7 @@ function parseUrlSafe(url?: string) {
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const databaseUrlSet = Boolean(process.env.DATABASE_URL);
   const nextauthSecretSet = Boolean(process.env.NEXTAUTH_SECRET);
   const adminEmailSet = Boolean(process.env.ADMIN_EMAIL);
@@ -72,6 +72,11 @@ export async function GET() {
     }
   }
 
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const host = request.headers.get("host");
+  const detectedOrigin = `https://${forwardedHost ?? host ?? "unknown"}`;
+
   return NextResponse.json({
     env: {
       databaseUrlSet,
@@ -81,6 +86,12 @@ export async function GET() {
       nextauthUrlSet,
       vercel: Boolean(process.env.VERCEL),
       nodeEnv: process.env.NODE_ENV,
+    },
+    request: {
+      forwardedProto,
+      forwardedHost,
+      host,
+      detectedOrigin,
     },
     nextauthUrl: parseUrlSafe(process.env.NEXTAUTH_URL),
     db: {
