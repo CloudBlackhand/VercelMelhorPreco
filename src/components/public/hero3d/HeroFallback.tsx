@@ -4,12 +4,12 @@ import Image from "next/image";
 import { HeroOverlay } from "./HeroOverlay";
 
 
-const STARS = Array.from({ length: 60 }, (_, i) => ({
+const STARS = Array.from({ length: 220 }, (_, i) => ({
   id: i,
   left: ((i * 13 + 7) % 98) + 1,
-  top: ((i * 29 + 11) % 70) + 2,
-  size: (i % 3) * 0.7 + 1,
-  opacity: (i % 5) * 0.12 + 0.25,
+  top: ((i * 29 + 11) % 96) + 2,
+  size: (i % 4) * 0.65 + 1,
+  opacity: (i % 5) * 0.12 + 0.28,
 }));
 
 
