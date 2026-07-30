@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { LogoImage } from "@/components/public/LogoImage";
 import { CardPlano } from "@/components/public/CardPlano";
 import { CardOperadoraSemPlanos } from "@/components/public/CardOperadoraSemPlanos";
 import {
@@ -113,21 +113,14 @@ export function OperadorasCatalog() {
         >
           <header className="mb-6 flex flex-col gap-4 border-b border-[var(--cosmos-border)] pb-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
-              {op.logoUrl ? (
-                <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/5 p-2">
-                  <Image
-                    src={op.logoUrl}
-                    alt=""
-                    width={56}
-                    height={56}
-                    className="max-h-10 w-auto object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white/10 text-lg font-bold text-[var(--cosmos-muted)]">
-                  {op.nome.charAt(0)}
-                </div>
-              )}
+              <LogoImage
+                nome={op.nome}
+                slug={op.slug}
+                logoUrl={op.logoUrl}
+                containerClassName="h-14 w-14 shrink-0 rounded-xl bg-white/5 p-2"
+                imgClassName="max-h-10 w-auto"
+                fallbackClassName="h-14 w-14 shrink-0 rounded-xl bg-white/5 text-lg font-bold text-[var(--cosmos-muted)]"
+              />
               <div>
                 <h2
                   id={`operadora-${op.slug}`}

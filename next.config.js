@@ -18,6 +18,9 @@ const nextConfig = {
       'upload.wikimedia.org',
       'assets.b9.com.br',
       'alcans.com.br',
+      'logo.wine',
+      'wikipedia.org',
+      'www.logo.wine',
     ],
     remotePatterns: [
       { protocol: 'https', hostname: 'verovideo.com.br', pathname: '/**' },
@@ -26,6 +29,10 @@ const nextConfig = {
       { protocol: 'https', hostname: 'upload.wikimedia.org', pathname: '/**' },
       { protocol: 'https', hostname: 'assets.b9.com.br', pathname: '/**' },
       { protocol: 'https', hostname: 'alcans.com.br', pathname: '/**' },
+      { protocol: 'https', hostname: 'logo.wine', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.logo.wine', pathname: '/**' },
+      { protocol: 'https', hostname: 'wikipedia.org', pathname: '/**' },
+      { protocol: 'https', hostname: '*.wikipedia.org', pathname: '/**' },
     ],
   },
   experimental: {

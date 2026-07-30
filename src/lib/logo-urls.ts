@@ -8,6 +8,10 @@ export const LOGOS_OPERADORAS_REMOTOS = {
   desktop:
     "https://desktopfibra.com.br/wp-content/uploads/2024/01/logo-desktop-512x512-1-e1712845028629.png",
   alcans: "https://alcans.com.br/wp-content/uploads/2023/05/alcans_logo_alcans-1.svg",
+  vivo: "https://www.logo.wine/a/logo/Vivo_(technology_company)/Vivo_(technology_company)-Logo.wine.svg",
+  algar: "https://www.logo.wine/a/logo/Algar_Telecom/Algar_Telecom-Logo.wine.svg",
+  oi: "https://www.logo.wine/a/logo/Oi_(telecommunications)/Oi_(telecommunications)-Logo.wine.svg",
+  tim: "https://www.logo.wine/a/logo/Tim_(Brazil)/Tim_(Brazil)-Logo.wine.svg",
 } as const;
 
 export const LOGOS_POR_SLUG: Record<string, string> = {
@@ -16,7 +20,10 @@ export const LOGOS_POR_SLUG: Record<string, string> = {
   desktop: LOGOS_OPERADORAS_REMOTOS.desktop,
   "desktop-fibra": LOGOS_OPERADORAS_REMOTOS.desktop,
   alcans: LOGOS_OPERADORAS_REMOTOS.alcans,
-  algar: "", // logo da algar vem do admin
+  vivo: LOGOS_OPERADORAS_REMOTOS.vivo,
+  algar: LOGOS_OPERADORAS_REMOTOS.algar,
+  oi: LOGOS_OPERADORAS_REMOTOS.oi,
+  tim: LOGOS_OPERADORAS_REMOTOS.tim,
 };
 
 // prioriza logoUrl da operadora, cai pro map de slug se não tiver

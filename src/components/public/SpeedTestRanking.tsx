@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { LogoImage } from "@/components/public/LogoImage";
 
 interface RankingItem {
   posicao: number;
@@ -54,21 +54,14 @@ export function SpeedTestRanking() {
               >
                 {item.posicao}
               </span>
-              {item.logoUrl ? (
-                <div className="relative w-10 h-10 flex-shrink-0">
-                  <Image
-                    src={item.logoUrl}
-                    alt={item.nome}
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-[var(--cosmos-muted)] font-semibold text-sm flex-shrink-0">
-                  {item.nome.charAt(0)}
-                </div>
-              )}
+              <LogoImage
+                nome={item.nome}
+                slug={item.slug}
+                logoUrl={item.logoUrl}
+                containerClassName="w-10 h-10 flex-shrink-0 rounded-lg bg-white/10"
+                imgClassName="w-full h-full object-contain"
+                fallbackClassName="w-10 h-10 flex-shrink-0 rounded-lg bg-white/10 text-[var(--cosmos-muted)] font-semibold text-sm"
+              />
               <span className="font-medium text-[var(--cosmos-text)] flex-1">{item.nome}</span>
               <span className="text-[var(--cosmos-muted)] text-sm">Comparar planos →</span>
             </Link>
