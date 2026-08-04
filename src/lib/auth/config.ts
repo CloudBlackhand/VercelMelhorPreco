@@ -3,7 +3,14 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
 import bcrypt from "bcryptjs";
 
-if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === "production") {
+function cleanEnvValue(value?: string) {
+  if (!value) return value;
+  return value.trim().replace(/^["']+|["']+$/g, "");
+}
+
+const nextAuthSecret = cleanEnvValue(process.env.NEXTAUTH_SECRET);
+
+if (!nextAuthSecret && process.env.NODE_ENV === "production") {
   console.error(
     "[auth] NEXTAUTH_SECRET nao esta configurado. O login vai falhar em producao."
   );
@@ -23,7 +30,8 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        if (!process.env.DATABASE_URL) {
+        const databaseUrl = cleanEnvValue(process.env.DATABASE_URL);
+        if (!databaseUrl) {
           console.error("[auth] DATABASE_URL nao esta configurado");
           return null;
         }
@@ -98,6 +106,6 @@ export const authOptions: NextAuthOptions = {
       }
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
 };
 
